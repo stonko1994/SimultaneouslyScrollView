@@ -3,7 +3,7 @@ import UIKit
 
 internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyScrollViewHandler {
     private var scrollViewsStore: WeakObjectStore<UIScrollView> = WeakObjectStore()
-    private var scrollingScrollView: UIScrollView? = nil
+    private var scrollingScrollView: UIScrollView?
 
     private let scrolledToBottomSubject = PassthroughSubject<Bool, Never>()
 
