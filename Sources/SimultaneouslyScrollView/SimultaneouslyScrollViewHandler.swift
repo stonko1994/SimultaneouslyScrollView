@@ -2,7 +2,7 @@ import Combine
 import UIKit
 
 /// Handler to enable simultaneously scrolling of `ScrollView`s
-public protocol SimultaneouslyScrollViewHandler {
+public protocol SimultaneouslyScrollViewHandler: ObservableObject {
     /// Publisher to notify if the `ScrollView`s are scrolled to the bottom
     var scrolledToBottomPublisher: AnyPublisher<Bool, Never> { get }
 
