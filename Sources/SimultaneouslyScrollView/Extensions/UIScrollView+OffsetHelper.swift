@@ -1,3 +1,4 @@
+#if os(iOS)
 import UIKit
 
 internal extension UIScrollView {
@@ -9,3 +10,4 @@ internal extension UIScrollView {
         contentSize.height > bounds.size.height
     }
 }
+#endif

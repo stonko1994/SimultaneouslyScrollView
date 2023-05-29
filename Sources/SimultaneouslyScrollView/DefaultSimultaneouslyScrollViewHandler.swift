@@ -1,3 +1,4 @@
+#if os(iOS)
 import Combine
 import UIKit
 
@@ -78,3 +79,4 @@ extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
             .forEach { $0.setContentOffset(scrollView.contentOffset, animated: false) }
     }
 }
+#endif
