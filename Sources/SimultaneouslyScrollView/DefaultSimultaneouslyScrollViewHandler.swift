@@ -3,7 +3,7 @@ import UIKit
 
 internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyScrollViewHandler {
     private var scrollViewsStore: WeakObjectStore<UIScrollView> = WeakObjectStore()
-    private var scrollingScrollView: UIScrollView?
+    private weak var lastScrollingScrollView: UIScrollView?
 
     private let scrolledToBottomSubject = PassthroughSubject<Bool, Never>()
 
@@ -63,22 +63,18 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
 
 extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        scrollingScrollView = scrollView
+        lastScrollingScrollView = scrollView
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         checkIsContentOffsetAtBottom()
 
-        guard scrollingScrollView == scrollView else {
+        guard lastScrollingScrollView == scrollView else {
             return
         }
 
         scrollViewsStore.allObjects
-            .filter { $0 != scrollingScrollView }
+            .filter { $0 != lastScrollingScrollView }
             .forEach { $0.setContentOffset(scrollView.contentOffset, animated: false) }
-    }
-
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        scrollingScrollView = nil
     }
 }
