@@ -47,17 +47,22 @@ To enable simultaneously scrolling in `SwiftUI` we need to utilize another libra
 
 #### Synchronize multiple `ScrollView`s
 1) Follow the installataion steps from [SwiftUI-Introspect](https://github.com/siteline/SwiftUI-Introspect)
+    ```
+    Recommended is to use version 0.10.0 or higher.
+    ```
 1) Import `Introspect` in addition to `SimultaneouslyScrollView`
     ```swift
     import SimultaneouslyScrollView
-    import Introspect
+    import SwiftUIIntrospect
     ```
 1) Access the `UIScrollView` from your `ScrollView` and register it to the `SimultaneouslyScrollViewHandler`.
     ```swift
     ScrollView {
         ...
     }
-    .introspectScrollView { simultaneouslyScrollViewHandler.register(scrollView: $0) }
+    .introspect(.scrollView, on: .iOS(.v13, .v14, .v15, .v16, .v17)) {
+        viewModel.simultaneouslyScrollViewHandler.register(scrollView: $0)
+    }
     ```
 1) That's it 🥳🎉
 
