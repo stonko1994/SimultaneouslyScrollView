@@ -3,6 +3,17 @@ import Combine
 import UIKit
 #endif
 
+public struct ScrollDirection: OptionSet {
+    public var rawValue: Int
+
+    public static let horizontal = ScrollDirection(rawValue: 1 << 0)
+    public static let vertical = ScrollDirection(rawValue: 2 << 0)
+
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+}
+
 /// Handler to enable simultaneously scrolling of `ScrollView`s
 @available(iOS 13, *)
 @available(tvOS, unavailable)
@@ -18,6 +29,14 @@ public protocol SimultaneouslyScrollViewHandler {
     /// - Parameters:
     ///     - scrollView: The `ScrollView` that should be registered for simultaneously scrolling
     func register(scrollView: UIScrollView)
+
+    /// Adds the `ScrollView` to a list and keep the content offset in sync.
+    /// When any registered `ScrollView` will be scrolled all other registered `ScrollView` will adjust
+    /// its content offset automatically.
+    /// - Parameters:
+    ///     - scrollView: The `ScrollView` that should be registered for simultaneously scrolling
+    ///     - scrollDirection: The `ScrollView` direction interested
+    func register(scrollView: UIScrollView, for scrollDirections: ScrollDirection?)
 
     /// Helper method to scroll all registered `ScrollView`s to the bottom.
     func scrollAllToBottom(animated: Bool)

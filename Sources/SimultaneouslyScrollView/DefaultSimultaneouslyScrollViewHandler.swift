@@ -2,8 +2,18 @@
 import Combine
 import UIKit
 
+internal class ScrollViewDecorator {
+    weak var scrollView: UIScrollView?
+    var direction: ScrollDirection?
+
+    init(scrollView: UIScrollView, direction: ScrollDirection?) {
+        self.scrollView = scrollView
+        self.direction = direction
+    }
+}
+
 internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyScrollViewHandler {
-    private var scrollViewsStore: WeakObjectStore<UIScrollView> = WeakObjectStore()
+    private var scrollViewsStore: [ScrollViewDecorator] = []
     private weak var lastScrollingScrollView: UIScrollView?
 
     private let scrolledToBottomSubject = PassthroughSubject<Bool, Never>()
@@ -13,46 +23,63 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
     }
 
     func register(scrollView: UIScrollView) {
-        guard !scrollViewsStore.contains(scrollView) else {
+        register(scrollView: scrollView, for: .none)
+    }
+
+    func register(scrollView: UIScrollView, for scrollDirection: ScrollDirection?) {
+        guard !scrollViewsStore.contains(where: { $0.scrollView == scrollView }) else {
             return
         }
 
         scrollView.delegate = self
-        scrollViewsStore.append(scrollView)
+        scrollViewsStore.append(.init(scrollView: scrollView, direction: scrollDirection))
 
         // Scroll the new `ScrollView` to the current position of the others.
         // Using the first `ScrollView` should be enough as all should be synchronized at this point already.
-        guard let currentContentOffset = scrollViewsStore.allObjects.first?.contentOffset else {
+        guard let decorator = scrollViewsStore.first, let registeredScrollView = decorator.scrollView else {
             return
         }
-        scrollView.setContentOffset(currentContentOffset, animated: false)
+
+        switch decorator.direction {
+        case [.horizontal]:
+            let offset = CGPoint(x: scrollView.contentOffset.x, y: registeredScrollView.contentOffset.y)
+            registeredScrollView.setContentOffset(offset, animated: false)
+        case [.vertical]:
+            let offset = CGPoint(x: registeredScrollView.contentOffset.x, y: scrollView.contentOffset.y)
+            registeredScrollView.setContentOffset(offset, animated: false)
+        default:
+            registeredScrollView.setContentOffset(scrollView.contentOffset, animated: false)
+        }
 
         checkIsContentOffsetAtBottom()
     }
 
     func scrollAllToBottom(animated: Bool) {
-        guard !scrollViewsStore.allObjects.isEmpty,
-              let scrollView = scrollViewsStore.allObjects.first,
-              scrollView.hasContentToFillScrollView else {
-                  return
-              }
+        guard !scrollViewsStore.isEmpty,
+              let scrollView = scrollViewsStore.first?.scrollView,
+              scrollView.hasContentToFillScrollView
+        else {
+            return
+        }
 
         let bottomContentOffset = CGPoint(
             x: 0,
             y: scrollView.contentSize.height - scrollView.bounds.height + scrollView.contentInset.bottom
         )
 
-        scrollViewsStore.allObjects
+        scrollViewsStore
+            .compactMap { $0.scrollView }
             .forEach { $0.setContentOffset(bottomContentOffset, animated: animated) }
     }
 
     private func checkIsContentOffsetAtBottom() {
-        guard !scrollViewsStore.allObjects.isEmpty,
-              let scrollView = scrollViewsStore.allObjects.first,
-              scrollView.hasContentToFillScrollView else {
-                  scrolledToBottomSubject.send(true)
-                  return
-              }
+        guard !scrollViewsStore.isEmpty,
+              let scrollView = scrollViewsStore.first?.scrollView,
+              scrollView.hasContentToFillScrollView
+        else {
+            scrolledToBottomSubject.send(true)
+            return
+        }
 
         if scrollView.isAtBottom {
             scrolledToBottomSubject.send(true)
@@ -74,9 +101,26 @@ extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
             return
         }
 
-        scrollViewsStore.allObjects
-            .filter { $0 != lastScrollingScrollView }
-            .forEach { $0.setContentOffset(scrollView.contentOffset, animated: false) }
+        for decorator in scrollViewsStore {
+            guard let registeredScrollView = decorator.scrollView else {
+                continue
+            }
+
+            if decorator.scrollView == lastScrollingScrollView {
+                continue
+            }
+
+            switch decorator.direction {
+            case [.horizontal]:
+                let offset = CGPoint(x: scrollView.contentOffset.x, y: registeredScrollView.contentOffset.y)
+                registeredScrollView.setContentOffset(offset, animated: false)
+            case [.vertical]:
+                let offset = CGPoint(x: registeredScrollView.contentOffset.x, y: scrollView.contentOffset.y)
+                registeredScrollView.setContentOffset(offset, animated: false)
+            default:
+                registeredScrollView.setContentOffset(scrollView.contentOffset, animated: false)
+            }
+        }
     }
 }
 #endif
