@@ -1,12 +1,12 @@
-#if os(iOS)
+#if os(iOS) || os(tvOS)
 import Combine
 import UIKit
 
 internal class ScrollViewDecorator {
     weak var scrollView: UIScrollView?
-    var direction: ScrollDirection?
+    var direction: SimultaneouslyScrollViewDirection?
 
-    init(scrollView: UIScrollView, direction: ScrollDirection?) {
+    init(scrollView: UIScrollView, direction: SimultaneouslyScrollViewDirection?) {
         self.scrollView = scrollView
         self.direction = direction
     }
@@ -26,7 +26,7 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
         register(scrollView: scrollView, for: .none)
     }
 
-    func register(scrollView: UIScrollView, for scrollDirection: ScrollDirection?) {
+    func register(scrollView: UIScrollView, for scrollDirection: SimultaneouslyScrollViewDirection?) {
         guard !scrollViewsStore.contains(where: { $0.scrollView == scrollView }) else {
             return
         }

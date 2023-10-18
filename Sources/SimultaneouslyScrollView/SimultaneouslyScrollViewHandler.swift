@@ -1,25 +1,14 @@
 import Combine
-#if os(iOS)
+#if os(iOS) || os(tvOS)
 import UIKit
 #endif
 
-public struct ScrollDirection: OptionSet {
-    public var rawValue: Int
-
-    public static let horizontal = ScrollDirection(rawValue: 1 << 0)
-    public static let vertical = ScrollDirection(rawValue: 2 << 0)
-
-    public init(rawValue: Int) {
-        self.rawValue = rawValue
-    }
-}
-
 /// Handler to enable simultaneously scrolling of `ScrollView`s
 @available(iOS 13, *)
-@available(tvOS, unavailable)
+@available(tvOS 13, *)
 @available(macOS, unavailable)
 public protocol SimultaneouslyScrollViewHandler {
-#if os(iOS)
+#if os(iOS) || os(tvOS)
     /// Publisher to notify if the `ScrollView`s are scrolled to the bottom
     var scrolledToBottomPublisher: AnyPublisher<Bool, Never> { get }
 
@@ -36,7 +25,7 @@ public protocol SimultaneouslyScrollViewHandler {
     /// - Parameters:
     ///     - scrollView: The `ScrollView` that should be registered for simultaneously scrolling
     ///     - scrollDirection: The `ScrollView` direction interested
-    func register(scrollView: UIScrollView, for scrollDirections: ScrollDirection?)
+    func register(scrollView: UIScrollView, for scrollDirections: SimultaneouslyScrollViewDirection?)
 
     /// Helper method to scroll all registered `ScrollView`s to the bottom.
     func scrollAllToBottom(animated: Bool)
