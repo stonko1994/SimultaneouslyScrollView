@@ -2,10 +2,10 @@ import Foundation
 
 /// Factory class to create `SimultaneouslyScrollViewHandler` instance
 @available(iOS 13, *)
-@available(tvOS, unavailable)
+@available(tvOS 13, *)
 @available(macOS, unavailable)
 public class SimultaneouslyScrollViewHandlerFactory {
-#if os(iOS)
+#if os(iOS) || os(tvOS)
     /// Creates a new `SimultaneouslyScrollViewHandler` instance
     /// - Returns: A new `SimultaneouslyScrollViewHandler` instance
     public static func create() -> SimultaneouslyScrollViewHandler {
