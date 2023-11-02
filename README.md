@@ -48,7 +48,7 @@ To enable simultaneously scrolling in `SwiftUI` we need to utilize another libra
 #### Synchronize multiple `ScrollView`s
 1) Follow the installataion steps from [SwiftUI-Introspect](https://github.com/siteline/SwiftUI-Introspect)
     ```
-    Recommended is to use version 0.10.0 or higher.
+    Recommended is to use version 1.0.0 or higher.
     ```
 1) Import `Introspect` in addition to `SimultaneouslyScrollView`
     ```swift
