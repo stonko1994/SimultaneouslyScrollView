@@ -91,24 +91,22 @@ extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
             return
         }
 
-        for decorator in scrollViewsStore {
-            guard let registeredScrollView = decorator.scrollView else {
-                continue
-            }
+        scrollViewsStore
+            .filter { $0.scrollView != lastScrollingScrollView }
+            .forEach { decorator in
+                guard let scrollView = decorator.scrollView else {
+                    return
+                }
 
-            if decorator.scrollView == lastScrollingScrollView {
-                continue
-            }
-
-            switch decorator.direction {
-            case [.horizontal]:
-                let offset = CGPoint(x: scrollView.contentOffset.x, y: registeredScrollView.contentOffset.y)
-                registeredScrollView.setContentOffset(offset, animated: false)
-            case [.vertical]:
-                let offset = CGPoint(x: registeredScrollView.contentOffset.x, y: scrollView.contentOffset.y)
-                registeredScrollView.setContentOffset(offset, animated: false)
-            default:
-                registeredScrollView.setContentOffset(scrollView.contentOffset, animated: false)
+                switch decorator.direction {
+                case [.horizontal]:
+                    let offset = CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y)
+                    scrollView.setContentOffset(offset, animated: false)
+                case [.vertical]:
+                    let offset = CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y)
+                    scrollView.setContentOffset(offset, animated: false)
+                default:
+                    scrollView.setContentOffset(scrollView.contentOffset, animated: false)
             }
         }
     }
