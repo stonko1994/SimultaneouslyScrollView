@@ -2,16 +2,6 @@
 import Combine
 import UIKit
 
-internal class ScrollViewDecorator {
-    weak var scrollView: UIScrollView?
-    var direction: SimultaneouslyScrollViewDirection?
-
-    init(scrollView: UIScrollView, direction: SimultaneouslyScrollViewDirection?) {
-        self.scrollView = scrollView
-        self.direction = direction
-    }
-}
-
 internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyScrollViewHandler {
     private var scrollViewsStore: [ScrollViewDecorator] = []
     private weak var lastScrollingScrollView: UIScrollView?
