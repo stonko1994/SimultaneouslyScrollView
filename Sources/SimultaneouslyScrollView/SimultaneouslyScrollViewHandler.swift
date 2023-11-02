@@ -24,8 +24,8 @@ public protocol SimultaneouslyScrollViewHandler {
     /// its content offset automatically.
     /// - Parameters:
     ///     - scrollView: The `ScrollView` that should be registered for simultaneously scrolling
-    ///     - scrollDirection: The `ScrollView` direction interested
-    func register(scrollView: UIScrollView, for scrollDirections: SimultaneouslyScrollViewDirection?)
+    ///     - scrollDirections: The `SimultaneouslyScrollViewDirection` directions interested
+    func register(scrollView: UIScrollView, scrollDirections: SimultaneouslyScrollViewDirection?)
 
     /// Helper method to scroll all registered `ScrollView`s to the bottom.
     func scrollAllToBottom(animated: Bool)

@@ -13,33 +13,29 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
     }
 
     func register(scrollView: UIScrollView) {
-        register(scrollView: scrollView, for: .none)
+        register(scrollView: scrollView, scrollDirections: nil)
     }
 
-    func register(scrollView: UIScrollView, for scrollDirection: SimultaneouslyScrollViewDirection?) {
+    func register(scrollView: UIScrollView, scrollDirections: SimultaneouslyScrollViewDirection?) {
         guard !scrollViewsStore.contains(where: { $0.scrollView == scrollView }) else {
             return
         }
 
         scrollView.delegate = self
-        scrollViewsStore.append(.init(scrollView: scrollView, direction: scrollDirection))
+        scrollViewsStore.append(
+            ScrollViewDecorator(
+                scrollView: scrollView,
+                directions: scrollDirections
+            )
+        )
 
         // Scroll the new `ScrollView` to the current position of the others.
         // Using the first `ScrollView` should be enough as all should be synchronized at this point already.
-        guard let decorator = scrollViewsStore.first, let registeredScrollView = decorator.scrollView else {
+        guard let decorator = scrollViewsStore.first else {
             return
         }
 
-        switch decorator.direction {
-        case [.horizontal]:
-            let offset = CGPoint(x: scrollView.contentOffset.x, y: registeredScrollView.contentOffset.y)
-            registeredScrollView.setContentOffset(offset, animated: false)
-        case [.vertical]:
-            let offset = CGPoint(x: registeredScrollView.contentOffset.x, y: scrollView.contentOffset.y)
-            registeredScrollView.setContentOffset(offset, animated: false)
-        default:
-            registeredScrollView.setContentOffset(scrollView.contentOffset, animated: false)
-        }
+        sync(scrollView: scrollView, with: decorator)
 
         checkIsContentOffsetAtBottom()
     }
@@ -77,6 +73,23 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
             scrolledToBottomSubject.send(false)
         }
     }
+
+    private func sync(scrollView: UIScrollView, with decorator: ScrollViewDecorator) {
+        guard let registeredScrollView = decorator.scrollView else {
+            return
+        }
+
+        switch decorator.directions {
+        case [.horizontal]:
+            let offset = CGPoint(x: scrollView.contentOffset.x, y: registeredScrollView.contentOffset.y)
+            registeredScrollView.setContentOffset(offset, animated: false)
+        case [.vertical]:
+            let offset = CGPoint(x: registeredScrollView.contentOffset.x, y: scrollView.contentOffset.y)
+            registeredScrollView.setContentOffset(offset, animated: false)
+        default:
+            registeredScrollView.setContentOffset(scrollView.contentOffset, animated: false)
+        }
+    }
 }
 
 extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
@@ -93,22 +106,7 @@ extension DefaultSimultaneouslyScrollViewHandler: UIScrollViewDelegate {
 
         scrollViewsStore
             .filter { $0.scrollView != lastScrollingScrollView }
-            .forEach { decorator in
-                guard let scrollView = decorator.scrollView else {
-                    return
-                }
-
-                switch decorator.direction {
-                case [.horizontal]:
-                    let offset = CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y)
-                    scrollView.setContentOffset(offset, animated: false)
-                case [.vertical]:
-                    let offset = CGPoint(x: scrollView.contentOffset.x, y: scrollView.contentOffset.y)
-                    scrollView.setContentOffset(offset, animated: false)
-                default:
-                    scrollView.setContentOffset(scrollView.contentOffset, animated: false)
-            }
-        }
+            .forEach { sync(scrollView: scrollView, with: $0) }
     }
 }
 #endif

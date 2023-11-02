@@ -4,11 +4,11 @@ import UIKit
 
 internal class ScrollViewDecorator {
     weak var scrollView: UIScrollView?
-    var direction: SimultaneouslyScrollViewDirection?
+    var directions: SimultaneouslyScrollViewDirection?
 
-    init(scrollView: UIScrollView, direction: SimultaneouslyScrollViewDirection?) {
+    init(scrollView: UIScrollView, directions: SimultaneouslyScrollViewDirection?) {
         self.scrollView = scrollView
-        self.direction = direction
+        self.directions = directions
     }
 }
 #endif
