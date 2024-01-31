@@ -1,11 +1,12 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.9
 import PackageDescription
 
 let package = Package(
     name: "SimultaneouslyScrollView",
     platforms: [
         .iOS(.v13),
-        .tvOS(.v13)
+        .tvOS(.v13),
+        .visionOS(.v1)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
