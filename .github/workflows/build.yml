@@ -7,11 +7,41 @@ on:
       - opened
 
 jobs:
-  build:
-    runs-on: macos-latest
+  build-ios:
+    name: Build iOS
+    runs-on: macOS-14
     steps:
     - uses: actions/checkout@v4
+
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+
     - name: Build iOS
-      run: swift build -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk iphonesimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-ios13.0-simulator"
-    - name: Build tvOS
-      run: swift build -Xswiftc "-sdk" -Xswiftc "`xcrun --sdk appletvsimulator --show-sdk-path`" -Xswiftc "-target" -Xswiftc "x86_64-apple-tvos13.0-simulator"
+      run: xcodebuild -scheme SimultaneouslyScrollView -destination "platform=iOS Simulator,name=iPhone 15 Pro,OS=latest"
+
+  build-tvos:
+    name: Build tvOS
+    runs-on: macOS-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+
+      - name: Build tvOS
+        run: xcodebuild -scheme SimultaneouslyScrollView -destination "platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
+
+  build-visionos:
+    name: Build visionOS
+    runs-on: macOS-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+
+      - name: Build visionOS
+        run: xcodebuild -scheme SimultaneouslyScrollView -destination "platform=visionOS Simulator,name=Apple Vision Pro,OS=latest"
