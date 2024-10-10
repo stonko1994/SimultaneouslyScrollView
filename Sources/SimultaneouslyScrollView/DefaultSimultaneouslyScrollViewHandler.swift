@@ -20,12 +20,29 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
         guard !scrollViewsStore.contains(where: { $0.scrollView == scrollView }) else {
             return
         }
-
-        scrollView.delegate = self
+        
+        let currentDelegate: UIScrollViewDelegate? = scrollView.delegate
+        
+        let multicastDelegate = {
+            if let multicastDelegate = scrollView.delegate as? MulticastScrollViewDelegate {
+                return multicastDelegate
+            } else {
+                let multicastDelegate = MulticastScrollViewDelegate()
+                if let currentDelegate {
+                    multicastDelegate.addDelegate(currentDelegate)
+                }
+                scrollView.delegate = multicastDelegate
+                return multicastDelegate
+            }
+        }()
+        
+        multicastDelegate.addDelegate(self)
+        
         scrollViewsStore.append(
             ScrollViewDecorator(
                 scrollView: scrollView,
-                directions: scrollDirections
+                directions: scrollDirections,
+                delegate: multicastDelegate
             )
         )
 
