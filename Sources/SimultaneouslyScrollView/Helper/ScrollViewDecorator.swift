@@ -6,7 +6,7 @@ internal class ScrollViewDecorator {
     weak var scrollView: UIScrollView?
     var delegate: MulticastScrollViewDelegate
     var directions: SimultaneouslyScrollViewDirection?
-    
+
     init(
         scrollView: UIScrollView,
         delegate: MulticastScrollViewDelegate,

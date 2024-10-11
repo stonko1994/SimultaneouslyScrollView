@@ -12,11 +12,11 @@ internal class MulticastScrollViewDelegate: NSObject, UIScrollViewDelegate {
     func removeDelegate(_ delegate: UIScrollViewDelegate) {
         delegates.remove(delegate)
     }
-    
+
     func callAll(_ closure: (_ delegate: UIScrollViewDelegate) -> ()) {
         delegates.allObjects.forEach(closure)
     }
-    
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         callAll { $0.scrollViewDidScroll?(scrollView) }
     }
@@ -32,15 +32,18 @@ internal class MulticastScrollViewDelegate: NSObject, UIScrollViewDelegate {
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         let originalTargetContentOffset = targetContentOffset.pointee
         var proposedOffsets: [CGPoint] = []
-        
+
         for delegate in delegates.allObjects {
             targetContentOffset.pointee = originalTargetContentOffset
             delegate.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
             proposedOffsets.append(targetContentOffset.pointee)
         }
-        
+
         let offsetProposals = proposedOffsets.filter { $0 != originalTargetContentOffset }
-        assert(offsetProposals.count <= 1, "Multiple delegates returned a custom targetContentOffset. Only one delegate may return a targetContentOffset.")
+        assert(
+            offsetProposals.count <= 1,
+            "Multiple delegates returned a custom targetContentOffset. Only one delegate may do so."
+        )
     }
 
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
