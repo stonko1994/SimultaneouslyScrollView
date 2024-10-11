@@ -41,8 +41,8 @@ internal class DefaultSimultaneouslyScrollViewHandler: NSObject, SimultaneouslyS
         scrollViewsStore.append(
             ScrollViewDecorator(
                 scrollView: scrollView,
-                directions: scrollDirections,
-                delegate: multicastDelegate
+                delegate: multicastDelegate,
+                directions: scrollDirections
             )
         )
 
