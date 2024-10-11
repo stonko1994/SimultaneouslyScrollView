@@ -13,7 +13,7 @@ internal class MulticastScrollViewDelegate: NSObject, UIScrollViewDelegate {
         delegates.remove(delegate)
     }
 
-    func callAll(_ closure: (_ delegate: UIScrollViewDelegate) -> ()) {
+    func callAll(_ closure: (_ delegate: UIScrollViewDelegate) -> Void) {
         delegates.allObjects.forEach(closure)
     }
 
@@ -29,13 +29,21 @@ internal class MulticastScrollViewDelegate: NSObject, UIScrollViewDelegate {
         callAll { $0.scrollViewWillBeginDragging?(scrollView) }
     }
 
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(
+        _ scrollView: UIScrollView,
+        withVelocity velocity: CGPoint,
+        targetContentOffset: UnsafeMutablePointer<CGPoint>
+    ) {
         let originalTargetContentOffset = targetContentOffset.pointee
         var proposedOffsets: [CGPoint] = []
 
         for delegate in delegates.allObjects {
             targetContentOffset.pointee = originalTargetContentOffset
-            delegate.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
+            delegate.scrollViewWillEndDragging?(
+                scrollView,
+                withVelocity: velocity,
+                targetContentOffset: targetContentOffset
+            )
             proposedOffsets.append(targetContentOffset.pointee)
         }
 
@@ -78,8 +86,7 @@ internal class MulticastScrollViewDelegate: NSObject, UIScrollViewDelegate {
 
     func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
         delegates.allObjects
-            .compactMap { $0.scrollViewShouldScrollToTop?(scrollView) }
-            .reduce(true, { $0 && $1 })
+            .allSatisfy { $0.scrollViewShouldScrollToTop?(scrollView) ?? true }
     }
 
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
